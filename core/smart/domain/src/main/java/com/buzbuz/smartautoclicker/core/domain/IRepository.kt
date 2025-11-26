@@ -111,6 +111,14 @@ interface IRepository {
     suspend fun getScenario(scenarioId: Long): Scenario?
 
     /**
+     * Get the requested scenario by name.
+     *
+     * @param name the name of the scenario.
+     * @return the scenario.
+     */
+    suspend fun getScenario(name: String): Scenario?
+
+    /**
      * Get the flow on th requested scenario.
      *
      * @param scenarioId the identifier of the scenario.

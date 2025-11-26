@@ -37,6 +37,9 @@ class DumbRepository @Inject constructor(
     override suspend fun getDumbScenario(dbId: Long): DumbScenario? =
         dumbScenarioDataSource.getDumbScenario(dbId)
 
+    override suspend fun getDumbScenario(name: String): DumbScenario? =
+        dumbScenarioDataSource.getDumbScenarioByName(name)
+
     override fun getDumbScenarioFlow(dbId: Long): Flow<DumbScenario?> =
         dumbScenarioDataSource.getDumbScenarioFlow(dbId)
 

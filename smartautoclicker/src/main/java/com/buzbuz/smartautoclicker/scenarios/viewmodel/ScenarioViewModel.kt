@@ -59,6 +59,8 @@ class ScenarioViewModel @Inject constructor(
     private val permissionController: PermissionsController,
     private val settingsRepository: SettingsRepository,
     private val appComponentsProvider: AppComponentsProvider,
+    private val smartRepository: com.buzbuz.smartautoclicker.core.domain.IRepository,
+    private val dumbRepository: com.buzbuz.smartautoclicker.core.dumb.domain.IDumbRepository,
 ) : ViewModel() {
 
     /** Callback upon the availability of SmartAutoClickerService. */
@@ -155,6 +157,42 @@ class ScenarioViewModel @Inject constructor(
 
         clickerService?.startDumbScenario(scenario)
         return true
+    }
+
+    /**
+     * Get a smart scenario by its database ID.
+     * @param id the database ID of the smart scenario.
+     * @return the SmartScenario, or null if not found.
+     */
+    suspend fun getSmartScenarioById(id: Long): Scenario? {
+        return smartRepository.getScenario(id)
+    }
+
+    /**
+     * Get a smart scenario by its name.
+     * @param name the name of the smart scenario.
+     * @return the SmartScenario, or null if not found.
+     */
+    suspend fun getSmartScenarioByName(name: String): Scenario? {
+        return smartRepository.getScenario(name)
+    }
+
+    /**
+     * Get a dumb scenario by its database ID.
+     * @param id the database ID of the dumb scenario.
+     * @return the DumbScenario, or null if not found.
+     */
+    suspend fun getDumbScenarioById(id: Long): DumbScenario? {
+        return dumbRepository.getDumbScenario(id)
+    }
+
+    /**
+     * Get a dumb scenario by its name.
+     * @param name the name of the dumb scenario.
+     * @return the DumbScenario, or null if not found.
+     */
+    suspend fun getDumbScenarioByName(name: String): DumbScenario? {
+        return dumbRepository.getDumbScenario(name)
     }
 
     /** Stop the overlay UI and release all associated resources. */

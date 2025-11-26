@@ -80,6 +80,9 @@ internal class Repository @Inject internal constructor(
     override suspend fun getScenario(scenarioId: Long): Scenario? =
         dataSource.getScenario(scenarioId)?.toDomain()
 
+    override suspend fun getScenario(name: String): Scenario? =
+        dataSource.getScenarioByName(name)?.toDomain()
+
     override fun getScenarioFlow(scenarioId: Long): Flow<Scenario?> =
         dataSource.getScenarioFlow(scenarioId).map { it?.toDomain() }
 

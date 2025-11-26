@@ -110,6 +110,11 @@ interface AndroidActionExecutor: Dumpable {
      * due to the queuing system).
      */
     fun postNotification(notificationRequest: ActionNotificationRequest)
+
+    /**
+     * Take a screenshot of the main display.
+     */
+    suspend fun takeScreenshot()
 }
 
 /** The maximum supported duration for a gesture. This limitation comes from Android GestureStroke API.  */

@@ -27,6 +27,7 @@ import com.buzbuz.smartautoclicker.feature.smart.config.ui.common.model.action.g
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.common.model.action.getSwipeIconRes
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.common.model.action.getSystemActionIconRes
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.common.model.action.getToggleEventIconRes
+import com.buzbuz.smartautoclicker.feature.smart.config.ui.common.model.action.getScreenshotIconRes
 
 
 /** Choices for the action type selection dialog. */
@@ -103,5 +104,12 @@ sealed class ActionTypeChoice(
         R.string.item_set_text_title,
         R.string.item_set_text_desc,
         getSetTextIconRes(),
+    )
+
+    /** Screenshot Action choice. */
+    data object Screenshot : ActionTypeChoice(
+        R.string.item_screenshot_title,
+        R.string.item_screenshot_desc,
+        getScreenshotIconRes(),
     )
 }

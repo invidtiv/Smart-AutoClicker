@@ -34,6 +34,7 @@ import com.buzbuz.smartautoclicker.core.domain.ext.getConditionBitmap
 import com.buzbuz.smartautoclicker.core.domain.model.action.Action
 import com.buzbuz.smartautoclicker.core.domain.model.action.Click
 import com.buzbuz.smartautoclicker.core.domain.model.action.Pause
+import com.buzbuz.smartautoclicker.core.domain.model.action.Screenshot
 import com.buzbuz.smartautoclicker.core.domain.model.action.Swipe
 import com.buzbuz.smartautoclicker.core.domain.model.condition.ImageCondition
 import com.buzbuz.smartautoclicker.core.domain.model.event.Event
@@ -132,6 +133,7 @@ class SmartActionsBriefViewModel @Inject constructor(
                 add(ActionTypeChoice.ToggleEvent)
                 add(ActionTypeChoice.Notification)
                 add(ActionTypeChoice.Intent)
+                add(ActionTypeChoice.Screenshot)
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -176,6 +178,7 @@ class SmartActionsBriefViewModel @Inject constructor(
         ActionTypeChoice.Notification -> editionRepository.editedItemsBuilder.createNewNotification(context)
         ActionTypeChoice.System -> editionRepository.editedItemsBuilder.createNewSystemAction(context)
         ActionTypeChoice.SetText -> editionRepository.editedItemsBuilder.createNewSetText(context)
+        ActionTypeChoice.Screenshot -> editionRepository.editedItemsBuilder.createNewScreenshot(context)
         ActionTypeChoice.Copy -> throw IllegalArgumentException("Unsupported action type for creation $choice")
     }
 
@@ -314,6 +317,10 @@ class SmartActionsBriefViewModel @Inject constructor(
 
         is Pause -> PauseDescription(
             pauseDurationMs = pauseDuration ?: 1,
+        )
+
+        is Screenshot -> DefaultDescription(
+            icon = ContextCompat.getDrawable(context, getIconRes())
         )
 
         else -> DefaultDescription(

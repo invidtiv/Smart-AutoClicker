@@ -99,6 +99,7 @@
       -->
     <string name="toast_denied_screen_sharing_permission">User denied screen sharing permission</string>
     <string name="toast_denied_foreground_permission">User denied foreground service permission</string>
+    <string name="toast_scenario_not_found">Scenario not found</string>
 
     <!--
       - TextButton content.

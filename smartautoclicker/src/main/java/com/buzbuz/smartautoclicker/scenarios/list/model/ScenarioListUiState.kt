@@ -123,13 +123,13 @@ data class ScenarioListUiState(
                     override val scenario: DumbScenario,
                     override val lastStartTimestamp: Long,
                     override val startCount: Long,
-                ) : Empty(displayName = scenario.name, scenarioTypeIcon = R.drawable.ic_dumb)
+                ) : Empty(displayName = "${scenario.id.databaseId}: ${scenario.name}", scenarioTypeIcon = R.drawable.ic_dumb)
 
                 data class Smart(
                     override val scenario: Scenario,
                     override val lastStartTimestamp: Long,
                     override val startCount: Long,
-                ) : Empty(displayName = scenario.name, scenarioTypeIcon = R.drawable.ic_smart)
+                ) : Empty(displayName = "${scenario.id.databaseId}: ${scenario.name}", scenarioTypeIcon = R.drawable.ic_smart)
             }
 
             sealed class Valid(displayName: String, scenarioTypeIcon: Int) : ScenarioItem(displayName, scenarioTypeIcon) {
@@ -152,7 +152,7 @@ data class ScenarioListUiState(
                     val pauseCount: Int,
                     val repeatText: String,
                     val maxDurationText: String,
-                ) : Valid(displayName = scenario.name,  scenarioTypeIcon = R.drawable.ic_dumb) {
+                ) : Valid(displayName = "${scenario.id.databaseId}: ${scenario.name}",  scenarioTypeIcon = R.drawable.ic_dumb) {
                     override fun getScenarioId(): Long = scenario.id.databaseId
                 }
 
@@ -166,7 +166,7 @@ data class ScenarioListUiState(
                     val eventsItems: List<EventItem>,
                     val triggerEventCount: Int,
                     val detectionQuality: Int,
-                ) : Valid(displayName = scenario.name, scenarioTypeIcon = R.drawable.ic_smart) {
+                ) : Valid(displayName = "${scenario.id.databaseId}: ${scenario.name}", scenarioTypeIcon = R.drawable.ic_smart) {
 
                     override fun getScenarioId(): Long = scenario.id.databaseId
 

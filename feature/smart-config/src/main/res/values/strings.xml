@@ -98,6 +98,9 @@
     <string name="item_set_text_details_text">%1$s</string>
     <string name="item_set_text_details_text_empty">Clear text</string>
 
+    <string name="item_screenshot_title">Screenshot</string>
+    <string name="item_screenshot_desc">Take a screenshot</string>
+
     <!-- Dialog Copy =============================================================================================== -->
 
     <string name="search_view_hint_event_copy">Search by event name</string>

@@ -55,6 +55,10 @@ class DumbScenarioDataSource @Inject constructor(
         dumbScenarioDao.getDumbScenariosWithAction(dbId)
             ?.toDomain()
 
+    suspend fun getDumbScenarioByName(name: String): DumbScenario? =
+        dumbScenarioDao.getDumbScenarioByName(name)
+            ?.toDomain()
+
     fun getDumbScenarioFlow(dbId: Long): Flow<DumbScenario?> =
         dumbScenarioDao.getDumbScenariosWithActionFlow(dbId)
             .map { it?.toDomain() }

@@ -129,6 +129,68 @@ internal class AndroidActionExecutorImpl @Inject constructor(
         notificationRequestExecutor.postNotification(notificationRequest)
     }
 
+    override suspend fun takeScreenshot() {
+        val service = accessibilityService ?: return
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            kotlin.coroutines.suspendCoroutine<Unit> { cont ->
+                service.takeScreenshot(
+                    android.view.Display.DEFAULT_DISPLAY,
+                    service.mainExecutor,
+                    object : AccessibilityService.TakeScreenshotCallback {
+                        override fun onSuccess(result: AccessibilityService.ScreenshotResult) {
+                            try {
+                                val bitmap = android.graphics.Bitmap.wrapHardwareBuffer(
+                                    result.hardwareBuffer,
+                                    result.colorSpace
+                                )
+                                if (bitmap != null) {
+                                    saveScreenshotToDisk(service, bitmap)
+                                    bitmap.recycle()
+                                }
+                                result.hardwareBuffer.close()
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error processing screenshot", e)
+                            }
+                            cont.resumeWith(Result.success(Unit))
+                        }
+
+                        override fun onFailure(errorCode: Int) {
+                            Log.e(TAG, "Screenshot failed: $errorCode")
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                )
+            }
+        } else {
+            Log.w(TAG, "Screenshot not supported on Android < 11 via AccessibilityService")
+        }
+    }
+
+    private fun saveScreenshotToDisk(context: android.content.Context, bitmap: android.graphics.Bitmap) {
+        val timestamp = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US).format(java.util.Date())
+        val filename = "Screenshot_$timestamp.png"
+
+        val resolver = context.contentResolver
+        val contentValues = android.content.ContentValues().apply {
+            put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, filename)
+            put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "image/png")
+            put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, android.os.Environment.DIRECTORY_PICTURES + "/SmartAutoClicker")
+        }
+
+        val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        if (uri != null) {
+            try {
+                resolver.openOutputStream(uri)?.use { stream ->
+                    bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to save screenshot", e)
+                resolver.delete(uri, null, null)
+            }
+        }
+    }
+
     override fun dump(writer: PrintWriter, prefix: CharSequence) {
         gestureExecutor.dump(writer, prefix)
     }

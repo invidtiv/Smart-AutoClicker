@@ -89,6 +89,9 @@ internal class EditionDefaultValues(private val scenarioRepository: IRepository)
     fun setTextName(context: Context): String =
         context.getString(R.string.default_set_text_name)
 
+    fun screenshotName(context: Context): String =
+        context.getString(R.string.default_screenshot_name)
+
     fun counterComparisonOperation(): TriggerCondition.OnCounterCountReached.ComparisonOperation =
         TriggerCondition.OnCounterCountReached.ComparisonOperation.EQUALS
 

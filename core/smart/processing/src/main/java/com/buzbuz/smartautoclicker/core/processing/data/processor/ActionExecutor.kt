@@ -43,6 +43,7 @@ import com.buzbuz.smartautoclicker.core.domain.model.action.ToggleEvent
 import com.buzbuz.smartautoclicker.core.domain.model.action.ChangeCounter
 import com.buzbuz.smartautoclicker.core.domain.model.action.Notification
 import com.buzbuz.smartautoclicker.core.domain.model.action.SetText
+import com.buzbuz.smartautoclicker.core.domain.model.action.Screenshot
 import com.buzbuz.smartautoclicker.core.domain.model.action.intent.putDomainExtra
 import com.buzbuz.smartautoclicker.core.domain.model.event.Event
 import com.buzbuz.smartautoclicker.core.domain.model.event.ImageEvent
@@ -101,6 +102,7 @@ internal class ActionExecutor(
                 is Notification -> executeNotification(event, action)
                 is SystemAction -> executeSystemAction(action)
                 is SetText -> executeSetText(action)
+                is Screenshot -> executeScreenshot(action)
             }
         }
     }
@@ -302,6 +304,12 @@ internal class ActionExecutor(
                 text = action.text.replaceCounterReferences(counters),
                 validate = action.validateInput,
             )
+        }
+    }
+
+    private suspend fun executeScreenshot(action: Screenshot) {
+        withContext(Dispatchers.Main) {
+            androidExecutor.takeScreenshot()
         }
     }
 }

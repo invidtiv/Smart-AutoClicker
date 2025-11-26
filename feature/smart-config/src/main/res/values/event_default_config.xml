@@ -42,4 +42,6 @@
     <string name="default_system_action_name">System action</string>
 
     <string name="default_set_text_name">Write text</string>
+
+    <string name="default_screenshot_name">Screenshot</string>
 </resources>

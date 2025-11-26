@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  viewer:
+    build: .
+    ports:
+      - "3010:3010"
+    environment:
+      - PORT=3010
+      - CHOKIDAR_USEPOLLING=true # Needed for hot reload on some systems
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    stdin_open: true # Needed for react-scripts
+    tty: true        # Needed for react-scripts

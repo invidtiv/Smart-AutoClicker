@@ -32,6 +32,7 @@ import com.buzbuz.smartautoclicker.feature.smart.config.ui.action.intent.flags.F
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.action.notification.NotificationViewModel
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.action.pause.PauseViewModel
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.action.settext.SetTextViewModel
+import com.buzbuz.smartautoclicker.feature.smart.config.ui.action.screenshot.ScreenshotViewModel
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.action.swipe.SwipeViewModel
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.action.system.SystemActionViewModel
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.action.toggleevent.EventTogglesViewModel
@@ -92,6 +93,7 @@ interface ScenarioConfigViewModelsEntryPoint {
     fun scenarioConfigViewModel(): ScenarioConfigViewModel
     fun scenarioDialogViewModel(): ScenarioDialogViewModel
     fun setTextViewModel(): SetTextViewModel
+    fun screenshotViewModel(): ScreenshotViewModel
     fun systemActionViewModel(): SystemActionViewModel
     fun smartActionsBriefViewModel(): SmartActionsBriefViewModel
     fun swipeViewModel(): SwipeViewModel

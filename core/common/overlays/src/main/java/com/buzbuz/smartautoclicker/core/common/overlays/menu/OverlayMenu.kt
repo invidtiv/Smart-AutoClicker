@@ -563,8 +563,8 @@ abstract class OverlayMenu(
             menuLayout.doWhenMeasured {
                 updateMenuPosition(
                     Point(
-                        (displayConfigManager.displayConfig.sizePx.x - menuLayout.width) / 2,
-                        (displayConfigManager.displayConfig.sizePx.y / 2) - menuLayout.height,
+                        0,
+                        (displayConfigManager.displayConfig.sizePx.y - menuLayout.height) / 2,
                     )
                 )
             }

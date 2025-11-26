@@ -119,6 +119,9 @@ internal class ScenarioDataSource @Inject constructor(
     suspend fun getScenario(scenarioId: Long): ScenarioWithEvents? =
         currentDatabase.value.scenarioDao().getScenario(scenarioId)
 
+    suspend fun getScenarioByName(name: String): ScenarioWithEvents? =
+        currentDatabase.value.scenarioDao().getScenarioByName(name)
+
     suspend fun getCompleteScenario(scenarioId: Long): CompleteScenario? =
         currentDatabase.value.scenarioDao().getCompleteScenario(scenarioId)
 

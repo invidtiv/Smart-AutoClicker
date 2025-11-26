@@ -57,6 +57,15 @@ interface DumbScenarioDao {
     @Query("SELECT * FROM dumb_scenario_table WHERE id=:dbId")
     fun getDumbScenariosWithActionFlow(dbId: Long): Flow<DumbScenarioWithActions?>
 
+    /**
+     * Get the specified dumb scenario with its dumb actions by name.
+     *
+     * @return the dumb scenario if found, null if not.
+     */
+    @Transaction
+    @Query("SELECT * FROM dumb_scenario_table WHERE name=:name ORDER BY id ASC LIMIT 1")
+    suspend fun getDumbScenarioByName(name: String): DumbScenarioWithActions?
+
     /** Get the dumb actions for a scenario, ordered by their priority. */
     @Query("SELECT * FROM dumb_action_table WHERE dumb_scenario_id!=:dumbScenarioId")
     fun getAllDumbActionsExcept(dumbScenarioId: Long): Flow<List<DumbActionEntity>>

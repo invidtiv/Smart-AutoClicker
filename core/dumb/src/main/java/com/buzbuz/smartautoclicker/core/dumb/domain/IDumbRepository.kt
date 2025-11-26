@@ -29,6 +29,8 @@ interface IDumbRepository {
 
     suspend fun getDumbScenario(dbId: Long): DumbScenario?
 
+    suspend fun getDumbScenario(name: String): DumbScenario?
+
     fun getDumbScenarioFlow(dbId: Long): Flow<DumbScenario?>
 
     fun getAllDumbActionsFlowExcept(scenarioDbId: Long): Flow<List<DumbAction>>

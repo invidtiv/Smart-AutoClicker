@@ -28,6 +28,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 import com.buzbuz.smartautoclicker.R
 import com.buzbuz.smartautoclicker.scenarios.list.ScenarioListFragment
@@ -50,7 +52,15 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ScenarioActivity : AppCompatActivity(), ScenarioListFragment.Listener {
 
-    /** ViewModel providing the click scenarios data to the UI. */
+    companion object {
+        const val ACTION_START_SCENARIO = "com.buzbuz.smartautoclicker.action.START_SCENARIO"
+        const val EXTRA_SCENARIO_ID = "SCENARIO_ID"
+        const val EXTRA_SCENARIO_NAME = "SCENARIO_NAME"
+        
+        /** Tag for the logs. */
+        private const val TAG = "ScenarioActivity"
+    }
+
     private val scenarioViewModel: ScenarioViewModel by viewModels()
 
     /** The result launcher for the projection permission dialog. */
@@ -63,6 +73,37 @@ class ScenarioActivity : AppCompatActivity(), ScenarioListFragment.Listener {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scenario)
+
+        if (intent?.action == ACTION_START_SCENARIO) {
+            val scenarioId = intent.getLongExtra(EXTRA_SCENARIO_ID, -1L)
+            val scenarioName = intent.getStringExtra(EXTRA_SCENARIO_NAME)
+
+            if (scenarioId != -1L || scenarioName != null) {
+                lifecycleScope.launch {
+                    var smartScenario: Scenario? = null
+                    var dumbScenario: DumbScenario? = null
+
+                    if (scenarioId != -1L) {
+                        smartScenario = scenarioViewModel.getSmartScenarioById(scenarioId)
+                        dumbScenario = scenarioViewModel.getDumbScenarioById(scenarioId)
+                    } else if (scenarioName != null) {
+                        smartScenario = scenarioViewModel.getSmartScenarioByName(scenarioName)
+                        dumbScenario = scenarioViewModel.getDumbScenarioByName(scenarioName)
+                    }
+
+                    when {
+                        smartScenario != null -> startScenario(
+                            ScenarioListUiState.Item.ScenarioItem.Empty.Smart(smartScenario, 0, 0)
+                        )
+                        dumbScenario != null -> startScenario(
+                            ScenarioListUiState.Item.ScenarioItem.Empty.Dumb(dumbScenario, 0, 0)
+                        )
+                        else -> Toast.makeText(this@ScenarioActivity, R.string.toast_scenario_not_found, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                return
+            }
+        }
 
         scenarioViewModel.stopScenario()
         scenarioViewModel.requestUserConsentIfNeeded(this)

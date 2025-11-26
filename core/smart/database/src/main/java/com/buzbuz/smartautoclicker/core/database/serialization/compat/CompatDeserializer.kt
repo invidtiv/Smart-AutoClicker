@@ -368,6 +368,7 @@ internal open class CompatDeserializer : Deserializer {
             ActionType.NOTIFICATION -> deserializeActionNotification(jsonAction)
             ActionType.SYSTEM -> deserializeActionSystem(jsonAction)
             ActionType.TEXT -> deserializeActionSetText(jsonAction)
+            ActionType.SCREENSHOT -> deserializeActionScreenshot(jsonAction)
             null -> null
         }
 
@@ -583,6 +584,20 @@ internal open class CompatDeserializer : Deserializer {
             type = ActionType.TEXT,
             textValue = jsonSetText.getString("textValue") ?: "",
             textValidateInput = jsonSetText.getBoolean("textValidateInput") ?: false,
+        )
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    open fun deserializeActionScreenshot(jsonScreenshot: JsonObject): ActionEntity? {
+        val id = jsonScreenshot.getLong("id", true) ?: return null
+        val eventId = jsonScreenshot.getLong("eventId", true) ?: return null
+
+        return ActionEntity(
+            id = id,
+            eventId = eventId,
+            name = jsonScreenshot.getString("name") ?: "",
+            priority = jsonScreenshot.getInt("priority")?.coerceAtLeast(0) ?: 0,
+            type = ActionType.SCREENSHOT,
         )
     }
 

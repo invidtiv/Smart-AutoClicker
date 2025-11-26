@@ -35,6 +35,7 @@ import com.buzbuz.smartautoclicker.core.domain.model.action.Click.PositionType
 import com.buzbuz.smartautoclicker.core.domain.model.action.Intent
 import com.buzbuz.smartautoclicker.core.domain.model.action.Notification
 import com.buzbuz.smartautoclicker.core.domain.model.action.Pause
+import com.buzbuz.smartautoclicker.core.domain.model.action.Screenshot
 import com.buzbuz.smartautoclicker.core.domain.model.action.SetText
 import com.buzbuz.smartautoclicker.core.domain.model.action.Swipe
 import com.buzbuz.smartautoclicker.core.domain.model.action.SystemAction
@@ -331,6 +332,14 @@ class EditedItemsBuilder internal constructor(
             priority = 0,
         )
 
+    fun createNewScreenshot(context: Context): Screenshot =
+        Screenshot(
+            id = actionsIdCreator.generateNewIdentifier(),
+            eventId = getEditedEventIdOrThrow(),
+            name = defaultValues.screenshotName(context),
+            priority = 0,
+        )
+
     fun createNewActionFrom(from: Action, eventId: Identifier = getEditedEventIdOrThrow()): Action = when (from) {
         is Click -> createNewClickFrom(from, eventId)
         is Swipe -> createNewSwipeFrom(from, eventId)
@@ -341,6 +350,7 @@ class EditedItemsBuilder internal constructor(
         is Notification -> createNewNotificationFrom(from, eventId)
         is SystemAction -> createNewSystemActionFrom(from, eventId)
         is SetText -> createNewSetTextFrom(from, eventId)
+        is Screenshot -> createNewScreenshotFrom(from, eventId)
     }
 
     private fun createNewClickFrom(from: Click, eventId: Identifier): Click {
@@ -459,6 +469,16 @@ class EditedItemsBuilder internal constructor(
             name = "" + from.name,
             text = from.text,
             validateInput = from.validateInput,
+        )
+    }
+
+    private fun createNewScreenshotFrom(from: Screenshot, eventId: Identifier): Screenshot {
+        val actionId = actionsIdCreator.generateNewIdentifier()
+
+        return from.copy(
+            id = actionId,
+            eventId = eventId,
+            name = "" + from.name,
         )
     }
 
