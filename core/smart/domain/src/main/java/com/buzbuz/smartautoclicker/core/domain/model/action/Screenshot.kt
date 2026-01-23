@@ -32,11 +32,13 @@ data class Screenshot(
     override val eventId: Identifier = Identifier(databaseId = DATABASE_ID_INSERTION),
     override val name: String? = null,
     override var priority: Int = 0,
+    val path: String? = null,
 ) : Action() {
 
     override fun hashCodeNoIds(): Int =
         31 * (name?.hashCode() ?: 0) +
-                31 * priority
+                31 * priority +
+                31 * (path?.hashCode() ?: 0)
 
     override fun deepCopy(): Action = copy(
         id = Identifier(databaseId = DATABASE_ID_INSERTION),

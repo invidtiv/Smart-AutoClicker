@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 18,
-    "identityHash": "e6e80401fb3cc87e167551a2b58b0fb0",
+    "version": 19,
+    "identityHash": "ac970b242f89818bf4823baf8efe8776",
     "entities": [
       {
         "tableName": "action_table",
@@ -697,6 +697,54 @@
         ]
       },
       {
+        "tableName": "tutorial_success_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tutorial_index` INTEGER NOT NULL, `scenario_id` INTEGER NOT NULL, PRIMARY KEY(`tutorial_index`), FOREIGN KEY(`scenario_id`) REFERENCES `scenario_table`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "tutorialIndex",
+            "columnName": "tutorial_index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scenarioId",
+            "columnName": "scenario_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "tutorial_index"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tutorial_success_table_scenario_id",
+            "unique": false,
+            "columnNames": [
+              "scenario_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tutorial_success_table_scenario_id` ON `${TABLE_NAME}` (`scenario_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "scenario_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "scenario_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
         "tableName": "scenario_usage_table",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `scenario_id` INTEGER NOT NULL, `last_start_timestamp_ms` INTEGER NOT NULL, `start_count` INTEGER NOT NULL, FOREIGN KEY(`scenario_id`) REFERENCES `scenario_table`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
@@ -759,7 +807,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e6e80401fb3cc87e167551a2b58b0fb0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ac970b242f89818bf4823baf8efe8776')"
     ]
   }
 }

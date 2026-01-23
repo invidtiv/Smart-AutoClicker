@@ -35,6 +35,7 @@ import com.buzbuz.smartautoclicker.core.domain.model.scenario.Scenario
 import com.buzbuz.smartautoclicker.core.dumb.domain.model.DumbScenario
 import com.buzbuz.smartautoclicker.core.common.permissions.PermissionsController
 import com.buzbuz.smartautoclicker.core.common.permissions.model.PermissionAccessibilityService
+import com.buzbuz.smartautoclicker.core.common.permissions.model.PermissionExternalStorage
 import com.buzbuz.smartautoclicker.core.common.permissions.model.PermissionOverlay
 import com.buzbuz.smartautoclicker.core.common.permissions.model.PermissionPostNotification
 import com.buzbuz.smartautoclicker.core.settings.SettingsRepository
@@ -115,6 +116,7 @@ class ScenarioViewModel @Inject constructor(
                     isServiceRunning = { LocalServiceProvider.isServiceStarted() },
                 ),
                 PermissionPostNotification(optional = true),
+                PermissionExternalStorage(optional = true),
             ),
             onAllGranted = onAllGranted,
         )

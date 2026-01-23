@@ -157,6 +157,7 @@ private fun CompleteActionEntity.toDomainScreenshot(cleanIds: Boolean = false) =
     eventId = Identifier(id = action.eventId, asTemporary = cleanIds),
     name = action.name,
     priority = action.priority,
+    path = action.screenshotPath,
 )
 
 private fun ClickPositionType.toDomain(): Click.PositionType =

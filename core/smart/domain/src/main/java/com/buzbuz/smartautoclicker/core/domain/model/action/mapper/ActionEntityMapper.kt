@@ -173,4 +173,5 @@ private fun Screenshot.toScreenshotEntity(): ActionEntity =
         priority = priority,
         name = name!!,
         type = ActionType.SCREENSHOT,
+        screenshotPath = path,
     )

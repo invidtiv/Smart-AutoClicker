@@ -1,15 +1,19 @@
-# 2025 Feature Specification: ADB Launch & Screenshot Action
+# 2025 Feature Specification: ADB Launch & Screenshot Action (IMPLEMENTED)
 
 ## 1. ADB Launch by Name or ID
 
 ### Objective
-Extend the existing (planned) ADB control capabilities to allow users to launch a scenario not just by its Database ID, but also by its **Name**.
+Expose new ADB intents to allow users to launch a scenario by its **Database ID** or its **Name**.
+
+### Implementation Status
+- [x] Intent Filter registered in `AndroidManifest.xml`.
+- [x] `ScenarioActivity` updated to handle `com.buzbuz.smartautoclicker.action.START_SCENARIO`.
+- [x] Helper methods added to `ScenarioViewModel` for ID/Name lookups.
 
 ### Technical Implementation
 
 #### Android Manifest
-Ensure the Intent Filter is registered (as per `ADB_COMMAND_PROPOSAL.md`).
-
+Registered in `smartautoclicker/src/main/AndroidManifest.xml`:
 ```xml
 <activity android:name=".scenarios.ScenarioActivity" ...>
     <intent-filter>
@@ -20,29 +24,24 @@ Ensure the Intent Filter is registered (as per `ADB_COMMAND_PROPOSAL.md`).
 ```
 
 #### ScenarioActivity Logic
-Update `ScenarioActivity` (in `onCreate` / `onNewIntent`) to handle the intent extras.
-
+The activity handles the intent in `onCreate`:
 1.  **Extras:**
     *   `SCENARIO_ID` (Long): The database ID.
     *   `SCENARIO_NAME` (String): The exact name of the scenario.
+2.  **Resolution:**
+    *   If `SCENARIO_ID` is present, it searches for a Smart or Dumb scenario with that ID.
+    *   If only `SCENARIO_NAME` is present, it searches by name.
+    *   Found scenarios are automatically started (triggering permission flow if needed).
 
-2.  **Resolution Logic:**
-    *   **Priority:** If `SCENARIO_ID` is provided, use it (O(1) lookup).
-    *   **Fallback:** If `SCENARIO_ID` is missing, check `SCENARIO_NAME`.
-    *   **Search:** Query the repository for a scenario matching the name.
-        *   *Note:* Scenario names might not be unique.
-        *   *Decision:* Launch the **first** match found, or log an error if multiple found (simpler to just launch first for now).
-    *   **Not Found:** Display a Toast/Log error if no scenario matches.
-
-#### ADB Command Examples
+### ADB Command Examples
 **By ID:**
 ```bash
-adb shell am start -a com.buzbuz.smartautoclicker.action.START_SCENARIO --el SCENARIO_ID 42
+adb shell am start -a com.buzbuz.smartautoclicker.action.START_SCENARIO --el SCENARIO_ID 1
 ```
 
 **By Name:**
 ```bash
-adb shell am start -a com.buzbuz.smartautoclicker.action.START_SCENARIO --es SCENARIO_NAME "My Farming Script"
+adb shell am start -a com.buzbuz.smartautoclicker.action.START_SCENARIO --es SCENARIO_NAME "My Script"
 ```
 
 ---
@@ -50,36 +49,31 @@ adb shell am start -a com.buzbuz.smartautoclicker.action.START_SCENARIO --es SCE
 ## 2. Screenshot Action
 
 ### Objective
-Add a new action type that captures the current device screen and saves it to the local storage.
+Provide an action to capture the current screen and save it to the Pictures folder, with optional subdirectory selection.
 
-### Functional Requirements
-*   **Action Type:** "Screenshot" (added to the list alongside Click, Swipe, Wait, etc.).
-*   **Behavior:** When executed, takes a full-screen capture.
-*   **Storage:** Saves the image to the device's standard **Pictures** directory (or a specific `SmartAutoClicker` subdirectory).
-*   **Naming Convention:** `Screenshot_YYYYMMDD_HHmmss.png` (Timestamp-based).
+### Functional Requirements (Implemented)
+*   **Action Type:** "Screenshot".
+*   **Behavior:** Captures the full screen.
+*   **Storage:** Saves to `Pictures/SmartAutoClicker` by default.
+*   **Custom Folder:** Users can specify a subfolder inside `Pictures/` (e.g., `MyScrens/`).
+*   **Naming Convention:** `Screenshot_YYYYMMDD_HHmmss.png`.
 
-### Technical Implementation
+### Implementation Details
 
-#### 1. Domain Model
-*   Modify `com.buzbuz.smartautoclicker.core.domain.model.action.Action` sealed class.
-*   Add `data class Screenshot(...) : Action`.
-*   Update `ActionEntity` (Database definitions) to support the new type (Room migration might be required if strict relations exist, or just a new `type` enum/string).
+#### 1. Models & Database
+- Updated `Screenshot` domain model in `core:smart:domain`.
+- Added `screenshot_path` column to `ActionEntity` in `core:smart:database`.
+- Incremented `CLICK_DATABASE_VERSION` to **19** with AutoMigration.
 
-#### 2. UI
-*   Update the "Add Action" dialog/bottom sheet to include "Screenshot".
-*   (Optional) No configuration needed for this action initially (simple trigger).
+#### 2. Configuration UI
+- Created `dialog_config_action_screenshot.xml` for folder name input.
+- Updated `ScreenshotViewModel` to manage the path state.
+- Enhanced `ScreenshotDialog` for configuring the action name and save destination.
 
 #### 3. Execution Logic
-*   Update `ActionExecutor` (likely `AndroidActionExecutorImpl.kt` or `GestureExecutor.kt`).
-*   **Mechanism:**
-    *   If `MediaProjection` is already active (used for Image Detection), reuse it to capture a frame.
-    *   If not, might need `UiAutomation` (requires Accessibility Service) or request `MediaProjection` permission if not already granted. *Note: The app likely already has Accessibility enabled for clicking.*
-    *   **AccessibilityService** has `takeScreenshot()` API (Android 11+). For older versions, might need MediaProjection.
-    *   *Constraint:* If supporting < Android 11, `MediaProjection` is the way. The app likely uses `MediaProjection` for the "Smart" detection features.
-
-#### 4. File Saving
-*   Use `MediaStore` API (for scoped storage compatibility on Android 10+) or standard File API for legacy.
-*   Ensure `WRITE_EXTERNAL_STORAGE` permission is handled if targeting older Android versions (though Scoped Storage is preferred).
+- **Primary (Android 11+):** Uses `AccessibilityService.takeScreenshot()` for high-quality, system-level capture.
+- **Fallback (Android < 11):** Uses `DisplayRecorder` (MediaProjection) to acquire the latest frame if the service is already capturing tiles.
+- **Saving:** Uses `MediaStore` for scoped storage compatibility, saving to `Environment.DIRECTORY_PICTURES`.
 
 ### Data Flow
-`ActionTrigger` -> `ActionExecutor` -> `Take Screenshot` -> `Save to Disk` -> `Resume Next Action`
+`ActionTrigger` (ActionExecutor) -> `AndroidActionExecutor.takeScreenshot(path)` -> `onSuccess` callback -> `saveScreenshotToDisk` -> `MediaStore.insert`

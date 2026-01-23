@@ -7,9 +7,18 @@ services:
       - "3010:3010"
     environment:
       - PORT=3010
+      - PUBLIC_URL=/klickr
       - CHOKIDAR_USEPOLLING=true # Needed for hot reload on some systems
+    container_name: pchelper
+    networks:
+      - npm-network
     volumes:
       - ./src:/app/src
       - ./public:/app/public
     stdin_open: true # Needed for react-scripts
     tty: true        # Needed for react-scripts
+
+networks:
+  npm-network:
+    external: true
+    name: nginx-proxy-manager_npm-network

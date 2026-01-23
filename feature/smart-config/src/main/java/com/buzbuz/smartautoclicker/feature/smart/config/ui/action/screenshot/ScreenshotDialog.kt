@@ -33,7 +33,7 @@ import com.buzbuz.smartautoclicker.core.ui.bindings.fields.setLabel
 import com.buzbuz.smartautoclicker.core.ui.bindings.fields.setOnTextChangedListener
 import com.buzbuz.smartautoclicker.core.ui.bindings.fields.setText
 import com.buzbuz.smartautoclicker.feature.smart.config.R
-import com.buzbuz.smartautoclicker.feature.smart.config.databinding.DialogConfigActionSystemBinding
+import com.buzbuz.smartautoclicker.feature.smart.config.databinding.DialogConfigActionScreenshotBinding
 import com.buzbuz.smartautoclicker.feature.smart.config.di.ScenarioConfigViewModelsEntryPoint
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.action.OnActionConfigCompleteListener
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.common.dialogs.showCloseWithoutSavingDialog
@@ -50,10 +50,10 @@ class ScreenshotDialog(
         creator = { screenshotViewModel() },
     )
 
-    private lateinit var viewBinding: DialogConfigActionSystemBinding
+    private lateinit var viewBinding: DialogConfigActionScreenshotBinding
 
     override fun onCreateView(): ViewGroup {
-        viewBinding = DialogConfigActionSystemBinding.inflate(LayoutInflater.from(context)).apply {
+        viewBinding = DialogConfigActionScreenshotBinding.inflate(LayoutInflater.from(context)).apply {
             layoutTopBar.apply {
                 dialogTitle.setText(R.string.item_screenshot_title)
 
@@ -75,8 +75,11 @@ class ScreenshotDialog(
             }
             hideSoftInputOnFocusLoss(fieldName.textField)
 
-            // Hide type selector as Screenshot has no subtypes
-            fieldType.root.visibility = View.GONE
+            fieldPath.apply {
+                setLabel(R.string.item_screenshot_path_label)
+                setOnTextChangedListener { viewModel.setPath(it.toString()) }
+            }
+            hideSoftInputOnFocusLoss(fieldPath.textField)
         }
 
         return viewBinding.root
@@ -95,6 +98,7 @@ class ScreenshotDialog(
                 launch { viewModel.nameError.collect { error ->
                     viewBinding.fieldName.setError(error ?: 0, error != null)
                 }}
+                launch { viewModel.path.collect(viewBinding.fieldPath::setText) }
                 launch { viewModel.isValidAction.collect(::updateSaveButton) }
             }
         }

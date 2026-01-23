@@ -25,6 +25,7 @@
     <string name="dialog_title_permission_notification">Notification</string>
     <string name="dialog_title_permission_mandatory_denied">Permission denied</string>
     <string name="dialog_title_permission_overlay">Overlay</string>
+    <string name="dialog_title_permission_storage">Storage</string>
 
     <!--
       - Messages.
@@ -39,6 +40,7 @@
         service permission, click on the button bellow.</string>
     <string name="message_permission_desc_notification">Optional: Shows the notification while the application is running in order
         to easily return to the scenario selection screen.</string>
+    <string name="message_permission_desc_storage">The storage permission is required in order to save the screenshots you take in your scenarios to your device gallery.</string>
     <string name="message_permission_mandatory_denied">This permission is mandatory for Klick\'r.
         It won\'t be able to work correctly without it.</string>
 

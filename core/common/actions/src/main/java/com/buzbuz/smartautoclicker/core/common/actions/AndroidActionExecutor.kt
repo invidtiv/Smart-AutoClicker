@@ -113,8 +113,9 @@ interface AndroidActionExecutor: Dumpable {
 
     /**
      * Take a screenshot of the main display.
+     * @param path the path where to save the screenshot. If null, a default path will be used.
      */
-    suspend fun takeScreenshot()
+    suspend fun takeScreenshot(path: String? = null)
 }
 
 /** The maximum supported duration for a gesture. This limitation comes from Android GestureStroke API.  */

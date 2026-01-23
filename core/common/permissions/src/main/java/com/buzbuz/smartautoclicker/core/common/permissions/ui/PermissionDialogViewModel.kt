@@ -27,6 +27,7 @@ import com.buzbuz.smartautoclicker.core.common.permissions.PermissionsController
 import com.buzbuz.smartautoclicker.core.common.permissions.R
 import com.buzbuz.smartautoclicker.core.common.permissions.model.Permission
 import com.buzbuz.smartautoclicker.core.common.permissions.model.PermissionAccessibilityService
+import com.buzbuz.smartautoclicker.core.common.permissions.model.PermissionExternalStorage
 import com.buzbuz.smartautoclicker.core.common.permissions.model.PermissionOverlay
 import com.buzbuz.smartautoclicker.core.common.permissions.model.PermissionPostNotification
 
@@ -94,5 +95,11 @@ private fun Permission.toPermissionDialogUiState(): PermissionDialogUiState =
             permission = this,
             titleRes = R.string.dialog_title_permission_accessibility,
             descriptionRes = R.string.message_permission_desc_accessibility,
+        )
+
+        is PermissionExternalStorage -> PermissionDialogUiState(
+            permission = this,
+            titleRes = R.string.dialog_title_permission_storage,
+            descriptionRes = R.string.message_permission_desc_storage,
         )
     }

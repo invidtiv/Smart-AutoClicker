@@ -309,7 +309,7 @@ internal class ActionExecutor(
 
     private suspend fun executeScreenshot(action: Screenshot) {
         withContext(Dispatchers.Main) {
-            androidExecutor.takeScreenshot()
+            androidExecutor.takeScreenshot(action.path)
         }
     }
 }

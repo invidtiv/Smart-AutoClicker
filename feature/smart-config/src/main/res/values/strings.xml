@@ -100,6 +100,8 @@
 
     <string name="item_screenshot_title">Screenshot</string>
     <string name="item_screenshot_desc">Take a screenshot</string>
+    <string name="item_screenshot_path_label">Folder</string>
+    <string name="item_screenshot_path_hint">Folder inside Pictures/ (e.g. MyScreenshots)</string>
 
     <!-- Dialog Copy =============================================================================================== -->
 

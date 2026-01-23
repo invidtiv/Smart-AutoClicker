@@ -41,6 +41,8 @@ class ScreenshotViewModel @Inject constructor(
     
     val nameError: Flow<Int?> = name.map { if (it.isEmpty()) R.string.item_error_action_invalid_generic else null }
 
+    val path: Flow<String?> = editedAction.map { it.path }
+
     val isEditingAction: Flow<Boolean> = editionRepository.isEditingAction
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
@@ -53,6 +55,11 @@ class ScreenshotViewModel @Inject constructor(
     fun setName(name: String) {
         val currentAction = editionRepository.editionState.getEditedAction<Screenshot>() ?: return
         editionRepository.updateEditedAction(currentAction.copy(name = name))
+    }
+
+    fun setPath(path: String?) {
+        val currentAction = editionRepository.editionState.getEditedAction<Screenshot>() ?: return
+        editionRepository.updateEditedAction(currentAction.copy(path = path))
     }
 
     fun hasUnsavedModifications(): Boolean = editedActionHasChanged.value
