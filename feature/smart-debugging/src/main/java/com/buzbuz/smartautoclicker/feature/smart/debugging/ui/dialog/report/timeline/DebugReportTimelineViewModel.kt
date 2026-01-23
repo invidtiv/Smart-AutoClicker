@@ -171,6 +171,6 @@ class DebugReportTimelineViewModel @Inject constructor(
             is Notification -> R.drawable.ic_action_notification
             is SetText -> R.drawable.ic_action_set_text
             is SystemAction -> R.drawable.ic_action_system
-            is Screenshot -> R.drawable.ic_screenshot
+            is Screenshot -> R.drawable.ic_capture
         }
 }
