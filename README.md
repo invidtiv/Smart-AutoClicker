@@ -35,6 +35,12 @@
 
 
 ## Links:
-* A question ? Read the Wiki first: https://github.com/Nain57/Smart-AutoClicker/wiki
-* Found a bug? Open an issue here: https://github.com/Nain57/Smart-AutoClicker/issues/new?template=bug_report.yml
-* You think an application is blocking Klick'r? Try the obfuscated version: https://github.com/Nain57/Smart-AutoClicker/releases/tag/obfuscation-start
+* **Documentation**:
+    * [ADB Command Guide](./documentation/ADB_COMMANDS.md) - Learn how to control Klick'r via ADB.
+    * [2025 Feature Spec](./documentation/FEATURE_SPEC_2025.md) - Technical details on the latest features.
+* **Release Info**:
+    * [Changelog](./CHANGELOG.md) - Latest updates and improvements.
+* **Community & Support**:
+    * A question ? Read the Wiki first: https://github.com/Nain57/Smart-AutoClicker/wiki
+    * Found a bug? Open an issue here: https://github.com/Nain57/Smart-AutoClicker/issues/new?template=bug_report.yml
+    * You think an application is blocking Klick'r? Try the obfuscated version: https://github.com/Nain57/Smart-AutoClicker/releases/tag/obfuscation-start

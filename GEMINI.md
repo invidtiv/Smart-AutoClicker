@@ -6,9 +6,9 @@ The project follows a multi-module architecture, separating concerns into `core`
 
 Always build F.droid version.
 
-We are going to modify the app to expose new adb intent to launch a scenario by its name, or by id. The second modifiction will be adding an action to the possible actions of the program click swipe wait we need to add screenshot that will take a screenshot and save it with timestamp in the name dateTtime to the pictures folder
+We have modified the app to expose new adb intent to launch a scenario by its name, or by id. The second modification was adding a screenshot action that saves with a timestamp in the format `dateTtime` to the pictures folder.
 
-Your first function is to create documentation, to achieve the above.
+The documentation for these features is now available in the `documentation/` folder and the `CHANGELOG.md`.
 
 ## Key Technologies
 
