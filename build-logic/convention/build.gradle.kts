@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -30,8 +31,8 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21.toString()
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
     }
 }
 
@@ -41,6 +42,7 @@ dependencies {
     compileOnly(libs.androidx.room.gradlePlugin)
     compileOnly(libs.google.firebase.crashlytics.gradlePlugin)
     compileOnly(libs.google.gms.gradlePlugin)
+    compileOnly(libs.google.protobuf.gradlePlugin)
 }
 
 tasks {
@@ -90,6 +92,11 @@ gradlePlugin {
         register("crashlytics") {
             id = "com.buzbuz.gradle.crashlytics"
             implementationClass = "com.buzbuz.gradle.convention.plugins.CrashlyticsConventionPlugin"
+        }
+
+        register("protobuf") {
+            id = "com.buzbuz.gradle.protobuf"
+            implementationClass = "com.buzbuz.gradle.convention.plugins.ProtobufConventionPlugin"
         }
 
         register("flavour") {

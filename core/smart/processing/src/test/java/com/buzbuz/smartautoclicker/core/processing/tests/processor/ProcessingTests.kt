@@ -26,8 +26,8 @@ import com.buzbuz.smartautoclicker.core.domain.model.action.ToggleEvent
 import com.buzbuz.smartautoclicker.core.domain.model.condition.TriggerCondition.OnCounterCountReached.ComparisonOperation.EQUALS
 import com.buzbuz.smartautoclicker.core.processing.data.processor.ScenarioProcessor
 import com.buzbuz.smartautoclicker.core.processing.data.scaling.ScalingManager
-import com.buzbuz.smartautoclicker.core.processing.domain.ScenarioProcessingListener
 import com.buzbuz.smartautoclicker.core.processing.utils.anyNotNull
+import com.buzbuz.smartautoclicker.core.processing.domain.SmartProcessingListener
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
@@ -72,7 +72,7 @@ class ProcessingTests {
     @Mock private lateinit var mockImageDetector: ImageDetector
     @Mock private lateinit var mockAndroidExecutor: AndroidActionExecutor
     @Mock private lateinit var mockEndListener: StopRequestListener
-    @Mock private lateinit var mockProcessingListener: ScenarioProcessingListener
+    @Mock private lateinit var mockProcessingListener: SmartProcessingListener
 
     /** The object under test. */
     private lateinit var scenarioProcessor: ScenarioProcessor
@@ -300,7 +300,7 @@ class ProcessingTests {
     /**
      * Use case: 3 trigger events, all enabled. The first and last one are already fulfilled (=0 counters), the second
      * one is not.
-     * Expected behaviour: all trigger events are verify, only 1 & 3 are fulfilled
+     * Expected behaviour: all trigger events are verified, only 1 & 3 are fulfilled
      */
     @Test
     fun `Processor checks all TriggerEvents even when one is triggered`() = runTest {
@@ -341,9 +341,9 @@ class ProcessingTests {
         }
 
         // All trigger should be interpreted, no keepDetecting value in TriggerEvents
-        mockProcessingListener.verifyTriggerEventProcessed(testEvent1, true)
-        mockProcessingListener.verifyTriggerEventProcessed(testEvent2, false)
-        mockProcessingListener.verifyTriggerEventProcessed(testEvent3, true)
+        mockProcessingListener.verifyTriggerEventFulfilled(testEvent1, true)
+        mockProcessingListener.verifyTriggerEventFulfilled(testEvent2, false)
+        mockProcessingListener.verifyTriggerEventFulfilled(testEvent3, true)
     }
 
     /**
@@ -412,8 +412,8 @@ class ProcessingTests {
             mockProcessingListener.verifyImageConditionProcessed(testConditionEvt2, false)
         }
         // Event1 not be triggered, Event2 should
-        assertFalse(eventsFulfilled[0])
-        assertTrue(eventsFulfilled[1])
+        assertTrue(eventsFulfilled[eventId1.databaseId] == false)
+        assertTrue(eventsFulfilled[eventId2.databaseId] == true)
     }
 
     /**
@@ -458,7 +458,7 @@ class ProcessingTests {
         }
 
         // Then: Should not crash (ConcurrentModification), event1 is fulfilled, event2 is disabled by event1
-        mockProcessingListener.verifyTriggerEventProcessed(testEvent1, true)
+        mockProcessingListener.verifyTriggerEventFulfilled(testEvent1, true)
         mockProcessingListener.verifyTriggerEventNotProcessed(testEvent2)
     }
 }

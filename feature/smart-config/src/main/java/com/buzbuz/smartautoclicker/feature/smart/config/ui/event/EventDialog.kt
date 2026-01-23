@@ -57,7 +57,7 @@ import com.buzbuz.smartautoclicker.feature.smart.config.ui.common.dialogs.showDe
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.common.model.condition.UiImageCondition
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.condition.image.brief.ImageConditionsBriefMenu
 import com.buzbuz.smartautoclicker.feature.smart.config.ui.condition.trigger.TriggerConditionListDialog
-import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.overlay.TryEventOverlayMenu
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.live.eventtry.TryEventOverlayMenu
 
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -198,8 +198,8 @@ class EventDialog(
             )
             setButtonConfig(
                 DualStateButtonTextConfig(
-                    textLeft = context.getString(R.string.field_operator_button_and),
-                    textRight = context.getString(R.string.field_operator_button_or),
+                    textLeft = context.getString(R.string.condition_operator_and),
+                    textRight = context.getString(R.string.condition_operator_or),
                     selectionRequired = true,
                     singleSelection = true,
                 )

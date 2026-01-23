@@ -40,8 +40,17 @@ internal class ImageEventTry(
     val event: ImageEvent,
 ) : ScenarioTry() {
 
-    override val imageEvents: List<ImageEvent> = listOf(event)
+    override val imageEvents: List<ImageEvent> = listOf(getTestEvent())
     override val triggerEvents: List<TriggerEvent> = emptyList()
+
+    private fun getTestEvent(): ImageEvent =
+        event.copy(
+            enabledOnStart = true,
+            actions = event.actions.filter { action -> action.canBeTried() }
+        )
+
+    private fun Action.canBeTried(): Boolean =
+        this !is ToggleEvent
 }
 
 internal class ImageConditionTry(
@@ -102,7 +111,7 @@ internal class ActionTry(
         ToggleEvent(
             id = Identifier(databaseId = 1L),
             eventId = eventId,
-            name = "Test Pause",
+            name = "Test Stop",
             priority = 0,
             toggleAll = true,
             toggleAllType = ToggleEvent.ToggleType.DISABLE,
@@ -113,7 +122,7 @@ internal class ActionTry(
             id = Identifier(databaseId = 1L),
             eventId = eventId,
             name = "Test timer reached",
-            durationMs = 1L,
+            durationMs = 500L,
             restartWhenReached = false,
         )
 }

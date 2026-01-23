@@ -37,7 +37,7 @@ import com.buzbuz.smartautoclicker.core.ui.bindings.fields.setupDescriptions
 import com.buzbuz.smartautoclicker.feature.smart.config.R
 import com.buzbuz.smartautoclicker.feature.smart.config.databinding.ContentMoreBinding
 import com.buzbuz.smartautoclicker.feature.smart.config.di.ScenarioConfigViewModelsEntryPoint
-import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.report.DebugReportDialog
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.report.DebugReportDialog
 
 import kotlinx.coroutines.launch
 
@@ -91,7 +91,7 @@ class MoreContent(appContext: Context) : NavBarDialogContent(appContext) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.isDebugViewEnabled.collect(viewBinding.fieldDebugOverlay::setChecked) }
                 launch { viewModel.isDebugReportEnabled.collect(viewBinding.fieldDebugReport::setChecked) }
-                launch { viewModel.debugReportAvailability.collect(::updateDebugReportAvailability) }
+                launch { viewModel.isDebugReportAvailable.collect(::updateDebugReportAvailability) }
             }
         }
     }

@@ -19,14 +19,14 @@ package com.buzbuz.smartautoclicker.core.processing.data.processor
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.annotation.VisibleForTesting
-import com.buzbuz.smartautoclicker.core.common.actions.AndroidActionExecutor
 
+import com.buzbuz.smartautoclicker.core.common.actions.AndroidActionExecutor
 import com.buzbuz.smartautoclicker.core.detection.ImageDetector
 import com.buzbuz.smartautoclicker.core.domain.model.event.ImageEvent
 import com.buzbuz.smartautoclicker.core.domain.model.event.TriggerEvent
 import com.buzbuz.smartautoclicker.core.processing.data.processor.state.ProcessingState
 import com.buzbuz.smartautoclicker.core.processing.data.scaling.ScalingManager
-import com.buzbuz.smartautoclicker.core.processing.domain.ScenarioProcessingListener
+import com.buzbuz.smartautoclicker.core.processing.domain.SmartProcessingListener
 
 import kotlinx.coroutines.yield
 
@@ -52,11 +52,15 @@ internal class ScenarioProcessor(
     androidExecutor: AndroidActionExecutor,
     unblockWorkaroundEnabled: Boolean = false,
     private val onStopRequested: () -> Unit,
-    private val progressListener: ScenarioProcessingListener? = null,
+    private val progressListener: SmartProcessingListener,
 ) {
 
     /** Handle the processing state of the scenario. */
-    @VisibleForTesting internal val processingState: ProcessingState = ProcessingState(imageEvents, triggerEvents)
+    @VisibleForTesting internal val processingState: ProcessingState = ProcessingState(
+        imageEvents = imageEvents,
+        triggerEvents = triggerEvents,
+        progressListener = progressListener,
+    )
     /** Check conditions and tell if they are fulfilled. */
     private val conditionsVerifier = ConditionsVerifier(
         state = processingState,
@@ -107,13 +111,13 @@ internal class ScenarioProcessor(
         processingState.clearIterationState()
 
         // Handle the image detection
-        progressListener?.onImageEventsProcessingStarted()
+        progressListener.onImageEventsProcessingStarted()
         if (!processingState.areAllImageEventsDisabled()) {
             processImageEvents(screenFrame, processingState.getEnabledImageEvents()) { imageEvent, results ->
                 actionExecutor.executeActions(imageEvent, results)
             }
         }
-        progressListener?.onImageEventsProcessingCompleted()
+        progressListener.onImageEventsProcessingCompleted()
 
         // Loop is completed
         actionExecutor.onScenarioLoopFinished()
@@ -123,7 +127,7 @@ internal class ScenarioProcessor(
 
     private suspend fun processTriggerEvents(
         events: Collection<TriggerEvent>,
-        onFulfilled: suspend (TriggerEvent, ConditionsResult) -> Unit,
+        onFulfilled: suspend (TriggerEvent, ConditionsResults) -> Unit,
     ) {
         for (triggerEvent in events) {
             // Enabled state of the event might have changed during the loop
@@ -132,19 +136,26 @@ internal class ScenarioProcessor(
             // No conditions ? This should not happen, skip this event
             if (triggerEvent.conditions.isEmpty()) continue
 
-            progressListener?.onTriggerEventProcessingStarted(triggerEvent)
+            val results = conditionsVerifier.verifyConditions(
+                operator = triggerEvent.conditionOperator,
+                conditions = triggerEvent.conditions,
+            )
 
-            val results = conditionsVerifier.verifyConditions(triggerEvent.conditionOperator, triggerEvent.conditions)
-            if (results.fulfilled == true) onFulfilled(triggerEvent, results)
+            if (results.fulfilled  == true) {
+                progressListener.onTriggerEventFulfilled(
+                    event = triggerEvent,
+                    results = results.getAllTriggerConditionsResults(),
+                )
 
-            progressListener?.onTriggerEventProcessingCompleted(triggerEvent, results.getAllResults())
+                onFulfilled(triggerEvent, results)
+            }
         }
     }
 
     private suspend fun processImageEvents(
         screenFrame: Bitmap,
         events: Collection<ImageEvent>,
-        onFulfilled: suspend (ImageEvent, ConditionsResult) -> Unit,
+        onFulfilled: suspend (ImageEvent, ConditionsResults) -> Unit,
     ) {
         // Set the current screen image
         imageDetector.setScreenBitmap(screenFrame, processingTag)
@@ -155,12 +166,20 @@ internal class ScenarioProcessor(
                 // No conditions ? This should not happen, skip this event
                 if (imageEvent.conditions.isEmpty()) continue
 
-                progressListener?.onImageEventProcessingStarted(imageEvent)
-                val results = conditionsVerifier.verifyConditions(imageEvent.conditionOperator, imageEvent.conditions)
-                progressListener?.onImageEventProcessingCompleted(imageEvent, results)
+                progressListener.onImageEventProcessingStarted()
+                val results = conditionsVerifier.verifyConditions(
+                    operator = imageEvent.conditionOperator,
+                    conditions = imageEvent.conditions,
+                )
 
                 if (results.fulfilled == true) {
                     onFulfilled(imageEvent, results)
+
+                    progressListener.onImageEventFulfilled(
+                        event = imageEvent,
+                        results = results.getAllImageConditionsResults(),
+                    )
+
                     if (!imageEvent.keepDetecting) break
                 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Kevin Buzeau
+ * Copyright (C) 2025 Kevin Buzeau
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,15 @@
 package com.buzbuz.smartautoclicker.feature.smart.debugging.di
 
 import com.buzbuz.smartautoclicker.core.common.overlays.di.OverlayComponent
-import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.overlay.DebugModel
-import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.overlay.TryElementViewModel
-import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.overlay.TryImageConditionViewModel
-import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.report.DebugReportModel
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.live.conditiontry.TryImageConditionViewModel
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.live.eventtry.TryElementViewModel
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.report.DebugReportViewModel
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.report.overview.DebugReportOverviewViewModel
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.report.timeline.DebugReportTimelineViewModel
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.report.details.DebugReportEventOccurrenceDetailsViewModel
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.report.details.condition.DebugConditionContentViewModel
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.report.details.counter.DebugCounterStateContentViewModel
+import com.buzbuz.smartautoclicker.feature.smart.debugging.ui.dialog.report.details.event.DebugEventsStateContentViewModel
 
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -28,8 +33,13 @@ import dagger.hilt.InstallIn
 @EntryPoint
 @InstallIn(OverlayComponent::class)
 interface DebuggingViewModelsEntryPoint {
-    fun debugModel(): DebugModel
-    fun debugReportModel(): DebugReportModel
+    fun debugConditionContentViewModel(): DebugConditionContentViewModel
+    fun debugCounterStateContentViewModel(): DebugCounterStateContentViewModel
+    fun debugEventStateContentViewModel(): DebugEventsStateContentViewModel
+    fun debugReportViewModel(): DebugReportViewModel
+    fun debugReportEventOccurrenceViewModel(): DebugReportEventOccurrenceDetailsViewModel
+    fun debugReportOverviewViewModel(): DebugReportOverviewViewModel
+    fun debugReportTimelineViewModel(): DebugReportTimelineViewModel
     fun tryElementViewModel(): TryElementViewModel
     fun tryImageConditionViewModel(): TryImageConditionViewModel
 }
