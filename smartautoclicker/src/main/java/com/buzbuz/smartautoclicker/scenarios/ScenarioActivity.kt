@@ -74,6 +74,16 @@ class ScenarioActivity : AppCompatActivity(), ScenarioListFragment.Listener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scenario)
 
+        projectionActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode != RESULT_OK) {
+                Toast.makeText(this, R.string.toast_denied_screen_sharing_permission, Toast.LENGTH_SHORT).show()
+            } else {
+                (requestedItem?.scenario as? Scenario)?.let { scenario ->
+                    startSmartScenario(result, scenario)
+                }
+            }
+        }
+
         if (intent?.action == ACTION_START_SCENARIO) {
             val scenarioId = intent.getLongExtra(EXTRA_SCENARIO_ID, -1L)
             val scenarioName = intent.getStringExtra(EXTRA_SCENARIO_NAME)
@@ -107,16 +117,6 @@ class ScenarioActivity : AppCompatActivity(), ScenarioListFragment.Listener {
 
         scenarioViewModel.stopScenario()
         scenarioViewModel.requestUserConsentIfNeeded(this)
-
-        projectionActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode != RESULT_OK) {
-                Toast.makeText(this, R.string.toast_denied_screen_sharing_permission, Toast.LENGTH_SHORT).show()
-            } else {
-                (requestedItem?.scenario as? Scenario)?.let { scenario ->
-                    startSmartScenario(result, scenario)
-                }
-            }
-        }
 
         // Splash screen is dismissed on first frame drawn, delay it until we have a user consent status
         findViewById<View>(android.R.id.content).delayDrawUntil {

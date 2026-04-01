@@ -147,7 +147,8 @@ class ScenarioViewModel @Inject constructor(
             if (foregroundPermission != PermissionChecker.PERMISSION_GRANTED) return false
         }
 
-        clickerService?.startSmartScenario(resultCode, data, scenario)
+        val service = clickerService ?: return false
+        service.startSmartScenario(resultCode, data, scenario)
         return true
     }
 
@@ -157,7 +158,8 @@ class ScenarioViewModel @Inject constructor(
             if (foregroundPermission != PermissionChecker.PERMISSION_GRANTED) return false
         }
 
-        clickerService?.startDumbScenario(scenario)
+        val service = clickerService ?: return false
+        service.startDumbScenario(scenario)
         return true
     }
 
