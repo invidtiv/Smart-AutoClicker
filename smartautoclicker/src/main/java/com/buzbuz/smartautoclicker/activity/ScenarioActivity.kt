@@ -29,6 +29,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 
 import com.buzbuz.smartautoclicker.R
 import com.buzbuz.smartautoclicker.activity.list.ScenarioListFragment
@@ -38,6 +39,7 @@ import com.buzbuz.smartautoclicker.core.domain.model.scenario.Scenario
 import com.buzbuz.smartautoclicker.core.dumb.domain.model.DumbScenario
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 
 /**
  * Entry point activity for the application.
@@ -45,6 +47,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  * available scenarios, if any.
  */
 class ScenarioActivity : AppCompatActivity(), ScenarioListFragment.Listener {
+
+    companion object {
+        const val ACTION_START_SCENARIO = "com.buzbuz.smartautoclicker.action.START_SCENARIO"
+        const val EXTRA_SCENARIO_ID = "SCENARIO_ID"
+        const val EXTRA_SCENARIO_NAME = "SCENARIO_NAME"
+    }
 
     /** ViewModel providing the click scenarios data to the UI. */
     private val scenarioViewModel: ScenarioViewModel by viewModels()
@@ -59,8 +67,6 @@ class ScenarioActivity : AppCompatActivity(), ScenarioListFragment.Listener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scenario)
 
-        scenarioViewModel.stopScenario()
-
         projectionActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode != RESULT_OK) {
                 Toast.makeText(this, R.string.toast_denied_screen_sharing_permission, Toast.LENGTH_SHORT).show()
@@ -70,6 +76,45 @@ class ScenarioActivity : AppCompatActivity(), ScenarioListFragment.Listener {
                 }
             }
         }
+
+        if (intent?.action == ACTION_START_SCENARIO) {
+            handleStartScenarioIntent(intent)
+            return
+        }
+
+        scenarioViewModel.stopScenario()
+    }
+
+    private fun handleStartScenarioIntent(startIntent: Intent) {
+        val hasScenarioId = startIntent.hasExtra(EXTRA_SCENARIO_ID)
+        val scenarioId = startIntent.getLongExtra(EXTRA_SCENARIO_ID, -1L)
+        val scenarioName = startIntent.getStringExtra(EXTRA_SCENARIO_NAME)
+
+        if (!hasScenarioId && scenarioName == null) {
+            showScenarioNotFoundToast()
+            return
+        }
+
+        lifecycleScope.launch {
+            val item = if (hasScenarioId) {
+                scenarioViewModel.getSmartScenarioById(scenarioId)
+                    ?.let { scenario -> ScenarioListUiState.Item.Empty.Smart(scenario) }
+                    ?: scenarioViewModel.getDumbScenarioById(scenarioId)
+                        ?.let { scenario -> ScenarioListUiState.Item.Empty.Dumb(scenario) }
+            } else {
+                scenarioViewModel.getSmartScenarioByName(scenarioName!!)
+                    ?.let { scenario -> ScenarioListUiState.Item.Empty.Smart(scenario) }
+                    ?: scenarioViewModel.getDumbScenarioByName(scenarioName)
+                        ?.let { scenario -> ScenarioListUiState.Item.Empty.Dumb(scenario) }
+            }
+
+            if (item != null) startScenario(item)
+            else showScenarioNotFoundToast()
+        }
+    }
+
+    private fun showScenarioNotFoundToast() {
+        Toast.makeText(this, R.string.toast_scenario_not_found, Toast.LENGTH_SHORT).show()
     }
 
     override fun startScenario(item: ScenarioListUiState.Item) {

@@ -28,13 +28,19 @@ import androidx.core.content.PermissionChecker
 import androidx.lifecycle.AndroidViewModel
 
 import com.buzbuz.smartautoclicker.SmartAutoClickerService
+import com.buzbuz.smartautoclicker.core.domain.Repository
 import com.buzbuz.smartautoclicker.core.domain.model.scenario.Scenario
+import com.buzbuz.smartautoclicker.core.dumb.domain.DumbRepository
 import com.buzbuz.smartautoclicker.core.dumb.domain.model.DumbScenario
 
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 
 /** AndroidViewModel for create/delete/list click scenarios from an LifecycleOwner. */
 class ScenarioViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val smartRepository = Repository.getRepository(application)
+    private val dumbRepository = DumbRepository.getRepository(application)
 
     /** Callback upon the availability of the [SmartAutoClickerService]. */
     private val serviceConnection: (SmartAutoClickerService.ILocalService?) -> Unit = { localService ->
@@ -125,6 +131,20 @@ class ScenarioViewModel(application: Application) : AndroidViewModel(application
         clickerService?.startDumbScenario(scenario)
         return true
     }
+
+    /** Get a Smart scenario by its database identifier. */
+    suspend fun getSmartScenarioById(id: Long): Scenario? = smartRepository.getScenario(id)
+
+    /** Get a Smart scenario by its exact name. */
+    suspend fun getSmartScenarioByName(name: String): Scenario? =
+        smartRepository.scenarios.first().firstOrNull { scenario -> scenario.name == name }
+
+    /** Get a Dumb scenario by its database identifier. */
+    suspend fun getDumbScenarioById(id: Long): DumbScenario? = dumbRepository.getDumbScenario(id)
+
+    /** Get a Dumb scenario by its exact name. */
+    suspend fun getDumbScenarioByName(name: String): DumbScenario? =
+        dumbRepository.dumbScenarios.first().firstOrNull { scenario -> scenario.name == name }
 
     /** Stop the overlay UI and release all associated resources. */
     fun stopScenario() {
