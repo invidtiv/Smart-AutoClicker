@@ -69,27 +69,31 @@ internal class OverlayMenuPositionDataSource private constructor(context: Contex
     private var lockedMenuPosition: Point? = null
 
     /**
-     * Load last user menu position for the current orientation, if any.
+     * Load last user menu position for the current orientation.
      *
      * @param orientation the orientation to load the position for.
+     *
+     * @return the saved position, or null if the user has never moved the menu in this orientation (in which case the
+     *         caller should apply its own default position).
      */
     fun loadMenuPosition(orientation: Int): Point? {
         lockedMenuPosition?.let { lockedPosition ->
             return lockedPosition
         }
 
-        val position = when (orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> Point(
-                sharedPreferences.getInt(PREFERENCE_MENU_X_LANDSCAPE_KEY, 0),
-                sharedPreferences.getInt(PREFERENCE_MENU_Y_LANDSCAPE_KEY, 0),
-            )
-            Configuration.ORIENTATION_PORTRAIT -> Point(
-                sharedPreferences.getInt(PREFERENCE_MENU_X_PORTRAIT_KEY, 0),
-                sharedPreferences.getInt(PREFERENCE_MENU_Y_PORTRAIT_KEY, 0),
-            )
+        val (xKey, yKey) = when (orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> PREFERENCE_MENU_X_LANDSCAPE_KEY to PREFERENCE_MENU_Y_LANDSCAPE_KEY
+            Configuration.ORIENTATION_PORTRAIT -> PREFERENCE_MENU_X_PORTRAIT_KEY to PREFERENCE_MENU_Y_PORTRAIT_KEY
             else -> return null
         }
 
+        // No saved position yet for this orientation: let the caller pick its default placement.
+        if (!sharedPreferences.contains(xKey) || !sharedPreferences.contains(yKey)) {
+            Log.d(TAG, "loadMenuPosition for orientation $orientation = none saved")
+            return null
+        }
+
+        val position = Point(sharedPreferences.getInt(xKey, 0), sharedPreferences.getInt(yKey, 0))
         Log.d(TAG, "loadMenuPosition for orientation $orientation = [${position.x}, ${position.y}]")
         return position
     }

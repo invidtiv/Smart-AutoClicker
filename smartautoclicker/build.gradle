@@ -42,7 +42,7 @@ android {
         applicationId "com.buzbuz.smartautoclicker"
         minSdk rootProject.ext.minSdkVersion
         targetSdk rootProject.ext.compileSdkVersion
-        versionCode 41
+        versionCode 42
         versionName "2.4.2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -109,6 +109,15 @@ android {
     packagingOptions {
         resources {
             excludes += ['META-INF/atomicfu.kotlin_module']
+        }
+    }
+
+    // Name debug APKs with a REDv242 suffix so the build is easy to identify.
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == 'debug') {
+            variant.outputs.all { output ->
+                output.outputFileName = "smartautoclicker-${variant.baseName}-REDv242.apk"
+            }
         }
     }
 }

@@ -527,9 +527,21 @@ abstract class OverlayMenu(
     }
 
     private fun loadMenuPosition(orientation: Int) {
-        positionDataSource.loadMenuPosition(orientation)?.let { savedPosition ->
-            updateMenuPosition(savedPosition)
-        }
+        val position = positionDataSource.loadMenuPosition(orientation) ?: getDefaultMenuPosition()
+        updateMenuPosition(position)
+    }
+
+    /**
+     * Default menu position used when the user has not moved the menu yet: the middle of the screen's left edge
+     * (x on the left, y vertically centered).
+     */
+    private fun getDefaultMenuPosition(): Point {
+        menuBackground.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
+        val menuHeight = menuBackground.measuredHeight
+        return Point(
+            0,
+            ((displayMetrics.screenSize.y - menuHeight) / 2).coerceAtLeast(0),
+        )
     }
 
     private fun saveMenuPosition(orientation: Int) {
