@@ -84,6 +84,32 @@ adb -s emulator-5560 shell am start -W -a com.buzbuz.smartautoclicker.action.STA
 
 Name matching is full-string, exact, and case-sensitive. If duplicate scenario names exist, the first repository match wins; prefer IDs for dependable automation.
 
+## Play and stop the loaded scenario (no screen tap)
+
+`START_SCENARIO` only loads the overlay; it leaves the floating menu on the play button without starting detection. To press play from ADB, send the `PLAY_SCENARIO` broadcast to the running service. These broadcasts take no extras and act on whichever scenario is currently loaded.
+
+Load, then play:
+
+```text
+adb -s emulator-5560 shell am start -W -a com.buzbuz.smartautoclicker.action.START_SCENARIO -p com.buzbuz.smartautoclicker.debug --el SCENARIO_ID 42
+adb -s emulator-5560 shell am broadcast -a com.buzbuz.smartautoclicker.action.PLAY_SCENARIO -p com.buzbuz.smartautoclicker.debug
+```
+
+Stop detection (the overlay stays loaded and can be replayed):
+
+```text
+adb -s emulator-5560 shell am broadcast -a com.buzbuz.smartautoclicker.action.STOP_SCENARIO -p com.buzbuz.smartautoclicker.debug
+```
+
+Release package: replace `-p com.buzbuz.smartautoclicker.debug` with `-p com.buzbuz.smartautoclicker`.
+
+Notes:
+
+- Send `PLAY_SCENARIO` after the overlay has loaded. The service waits for the load to finish internally, but the broadcast is dropped if it arrives before the service is running at all.
+- `PLAY_SCENARIO` is idempotent: it is ignored if no scenario is loaded, if the engine is not ready, or if detection is already running. Detection applies to Smart scenarios.
+- `STOP_SCENARIO` stops detection only. It does not close the overlay. For a full teardown use the overlay stop button, the physical `Volume Down` key, or `am force-stop <package>`.
+- A successful broadcast prints `Broadcast completed: result=0`. That confirms delivery, not that detection changed state; observe the overlay's play/pause button to confirm.
+
 ## Selector precedence
 
 If both selectors are supplied, the presence of `SCENARIO_ID` selects ID lookup. `SCENARIO_NAME` is ignored even when the ID does not exist:

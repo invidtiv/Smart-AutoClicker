@@ -20,7 +20,10 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.app.*
 import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.util.AndroidRuntimeException
 import android.util.Log
@@ -28,6 +31,7 @@ import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
 
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 
 import com.buzbuz.smartautoclicker.SmartAutoClickerService.Companion.LOCAL_SERVICE_INSTANCE
 import com.buzbuz.smartautoclicker.SmartAutoClickerService.Companion.getLocalService
@@ -61,6 +65,19 @@ import kotlin.coroutines.suspendCoroutine
 class SmartAutoClickerService : AccessibilityService(), AndroidExecutor {
 
     companion object {
+        /**
+         * ADB broadcast action starting the detection of the currently loaded scenario (equivalent to pressing the
+         * play button of the floating menu). Sent with:
+         * adb shell am broadcast -a com.buzbuz.smartautoclicker.action.PLAY_SCENARIO -p <package>
+         */
+        const val ACTION_PLAY_SCENARIO = "com.buzbuz.smartautoclicker.action.PLAY_SCENARIO"
+        /**
+         * ADB broadcast action stopping the detection of the currently loaded scenario (equivalent to pressing the
+         * pause button of the floating menu). The overlay stays loaded and can be played again. Sent with:
+         * adb shell am broadcast -a com.buzbuz.smartautoclicker.action.STOP_SCENARIO -p <package>
+         */
+        const val ACTION_STOP_SCENARIO = "com.buzbuz.smartautoclicker.action.STOP_SCENARIO"
+
         /** The identifier for the foreground notification of this service. */
         private const val NOTIFICATION_ID = 42
         /** The channel identifier for the foreground notification of this service. */
@@ -96,10 +113,24 @@ class SmartAutoClickerService : AccessibilityService(), AndroidExecutor {
 
         fun startDumbScenario(dumbScenario: DumbScenario)
         fun startSmartScenario(resultCode: Int, data: Intent, scenario: Scenario)
+        fun startDetection()
+        fun stopDetection()
         fun onKeyEvent(event: KeyEvent?): Boolean
         fun stop()
         fun release()
     }
+
+    /** Receiver for the ADB scenario control broadcasts (play/stop the loaded scenario detection). */
+    private val scenarioControlReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                ACTION_PLAY_SCENARIO -> LOCAL_SERVICE_INSTANCE?.startDetection()
+                ACTION_STOP_SCENARIO -> LOCAL_SERVICE_INSTANCE?.stopDetection()
+            }
+        }
+    }
+    /** Whether [scenarioControlReceiver] is currently registered, to avoid double register/unregister. */
+    private var isScenarioControlReceiverRegistered = false
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -116,14 +147,42 @@ class SmartAutoClickerService : AccessibilityService(), AndroidExecutor {
                 stopForeground(Service.STOP_FOREGROUND_REMOVE)
             },
         )
+
+        registerScenarioControlReceiver()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
+        unregisterScenarioControlReceiver()
+
         LOCAL_SERVICE_INSTANCE?.stop()
         LOCAL_SERVICE_INSTANCE?.release()
         LOCAL_SERVICE_INSTANCE = null
 
         return super.onUnbind(intent)
+    }
+
+    /**
+     * Register the receiver listening for the ADB play/stop scenario broadcasts. Exported so that it can be reached by
+     * `adb shell am broadcast`; consistent with the already ADB-facing [ScenarioActivity] START_SCENARIO intent.
+     */
+    private fun registerScenarioControlReceiver() {
+        if (isScenarioControlReceiverRegistered) return
+        ContextCompat.registerReceiver(
+            this,
+            scenarioControlReceiver,
+            IntentFilter().apply {
+                addAction(ACTION_PLAY_SCENARIO)
+                addAction(ACTION_STOP_SCENARIO)
+            },
+            ContextCompat.RECEIVER_EXPORTED,
+        )
+        isScenarioControlReceiverRegistered = true
+    }
+
+    private fun unregisterScenarioControlReceiver() {
+        if (!isScenarioControlReceiverRegistered) return
+        unregisterReceiver(scenarioControlReceiver)
+        isScenarioControlReceiverRegistered = false
     }
 
     override fun onKeyEvent(event: KeyEvent?): Boolean =

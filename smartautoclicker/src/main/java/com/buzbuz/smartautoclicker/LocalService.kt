@@ -31,6 +31,7 @@ import com.buzbuz.smartautoclicker.core.ui.overlays.Overlay
 import com.buzbuz.smartautoclicker.core.ui.overlays.manager.OverlayManager
 import com.buzbuz.smartautoclicker.feature.floatingmenu.ui.MainMenu
 import com.buzbuz.smartautoclicker.feature.scenario.config.dumb.ui.DumbMainMenu
+import com.buzbuz.smartautoclicker.feature.scenario.debugging.domain.DebuggingRepository
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -124,6 +125,34 @@ class LocalService(
                 rootOverlay = MainMenu { stop() }
             )
         }
+    }
+
+    /**
+     * Start the detection of the currently loaded scenario, without any user interaction on the overlay.
+     *
+     * This is the code path triggered by the play button of the floating menu (see MainMenuModel.toggleDetection).
+     * It only has an effect on a loaded smart scenario whose engine is ready (RECORDING state); the underlying
+     * [DetectorEngine] ignores the call otherwise, so it is safe to call at any time.
+     */
+    override fun startDetection() {
+        if (!isStarted) return
+        serviceScope.launch {
+            // Loading (startSmartScenario) is delayed; make sure it completed before starting detection.
+            startJob?.join()
+            val detectionRepo = detectionRepository ?: return@launch
+            detectionRepo.startDetection(
+                context,
+                DebuggingRepository.getDebuggingRepository(context).detectionProgressListener,
+            )
+        }
+    }
+
+    /**
+     * Stop the detection of the currently loaded scenario, keeping the overlay loaded (equivalent to the pause button
+     * of the floating menu). The scenario can be played again with [startDetection].
+     */
+    override fun stopDetection() {
+        detectionRepository?.stopDetection()
     }
 
     override fun onKeyEvent(event: KeyEvent?): Boolean {
